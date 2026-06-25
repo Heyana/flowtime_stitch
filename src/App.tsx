@@ -319,6 +319,16 @@ export default function App() {
     startTimerNotification(settings.restDuration * 60, 'rest');
   };
 
+  // Fully stop everything, return to idle focus
+  const stopAll = () => {
+    stopTimerNotification();
+    setTimerState('idle');
+    setTimerMode('work');
+    setTimeLeft(settings.workDuration * 60);
+    setTotalDuration(settings.workDuration * 60);
+    sessionStartTimeRef.current = null;
+  };
+
   // Skip rest → start work immediately (explicit user action)
   const skipRest = () => {
     stopTimerNotification();
@@ -415,6 +425,7 @@ export default function App() {
             onSkipRest={skipRest}
             onEndSession={endRestSession}
             onCheckOut={checkoutEarly}
+            onStopAll={stopAll}
             onActivityClick={(type) => {
               if (type === 'breathe') {
                 setShowBreathingModal(true);

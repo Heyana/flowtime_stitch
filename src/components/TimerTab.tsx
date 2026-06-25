@@ -19,12 +19,13 @@ interface TimerTabProps {
   onSkipRest: () => void;
   onEndSession: () => void;
   onCheckOut: () => void;
+  onStopAll: () => void;
   onActivityClick: (type: 'walk' | 'hydrate' | 'breathe' | 'stretch') => void;
 }
 
 export default function TimerTab({
   timerState, timerMode, timeLeft, totalDuration, taskTitle, setTaskTitle,
-  onStart, onPause, onResume, onSkipRest, onEndSession, onCheckOut, onActivityClick,
+  onStart, onPause, onResume, onSkipRest, onEndSession, onCheckOut, onStopAll, onActivityClick,
 }: TimerTabProps) {
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -126,9 +127,14 @@ export default function TimerTab({
             </div>
           )}
           {timerState !== 'idle' && (
-            <button onClick={onCheckOut}
-              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors pb-1 border-b border-transparent hover:border-surface-variant font-semibold mt-1"
-            >{t('timer.checkoutDay')}</button>
+            <>
+              <button onClick={onCheckOut}
+                className="text-xs text-on-surface-variant hover:text-on-surface transition-colors pb-1 border-b border-transparent hover:border-surface-variant font-semibold mt-1"
+              >{t('timer.checkoutDay')}</button>
+              <button onClick={onStopAll}
+                className="text-xs text-error/60 hover:text-error transition-colors font-semibold mt-1"
+              >{t('timer.stopAll')}</button>
+            </>
           )}
         </div>
       ) : (
@@ -164,6 +170,9 @@ export default function TimerTab({
             <button id="end-session" onClick={onEndSession}
               className="w-full bg-error text-on-error font-semibold py-3.5 rounded-full hover:opacity-95 transition-all duration-200 shadow-soft text-sm active:scale-95 cursor-pointer text-center"
             >{t('timer.endSession')}</button>
+            <button onClick={onStopAll}
+              className="w-full text-error/60 hover:text-error font-semibold text-xs transition-colors cursor-pointer"
+            >{t('timer.stopAll')}</button>
           </div>
         </div>
       )}
