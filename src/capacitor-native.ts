@@ -40,30 +40,43 @@ function formatTimerText(secs: number): string {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
+function countdownBar(filled: number, total: number): string {
+  const ratio = Math.max(0, Math.min(1, filled / total));
+  const barLen = 12;
+  const filledLen = Math.round(barLen * ratio);
+  return '█'.repeat(filledLen) + '░'.repeat(barLen - filledLen);
+}
+
 export async function startTimerNotification(timeLeft: number, mode: 'focus' | 'rest'): Promise<void> {
   if (!(await isCapacitorAvailable())) return;
   stopTimerNotification();
   try {
     const { LocalNotifications } = await import('@capacitor/local-notifications');
     await LocalNotifications.requestPermissions();
-    const title = mode === 'focus' ? '专注中' : '休息中';
+    const title = mode === 'focus' ? '🔴 专注中' : '🟢 休息中';
     const iconColor = mode === 'focus' ? '#b3272e' : '#006d3e';
+    const body = `${formatTimerText(timeLeft)}\n${countdownBar(timeLeft, timeLeft)}`;
+
     await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
     await LocalNotifications.schedule({
-      notifications: [{ id: TIMER_NOTIF_ID, title, body: `剩余 ${formatTimerText(timeLeft)}`, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date(Date.now() + 200) } }],
+      notifications: [{ id: TIMER_NOTIF_ID, title, body, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
     });
+
+    // Update every 3 seconds for smoother countdown
+    const total = timeLeft;
     let remaining = timeLeft;
     _timerNotifInterval = setInterval(async () => {
-      remaining--;
+      remaining -= 3;
       if (remaining <= 0) return;
       try {
+        const bar = countdownBar(remaining, total);
         const { LocalNotifications: LN } = await import('@capacitor/local-notifications');
         await LN.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
         await LN.schedule({
-          notifications: [{ id: TIMER_NOTIF_ID, title, body: `剩余 ${formatTimerText(remaining)}`, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date(Date.now() + 200) } }],
+          notifications: [{ id: TIMER_NOTIF_ID, title, body: `${formatTimerText(remaining)}\n${bar}`, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
         });
-      } catch { /* ignore */ }
-    }, 10000);
+      } catch { /* ignore update failures */ }
+    }, 3000);
   } catch (e) { console.error('[Flowtime] Timer notification failed:', e); }
 }
 
@@ -72,11 +85,11 @@ export async function pauseTimerNotification(timeLeft: number, mode: 'focus' | '
   stopTimerNotification();
   try {
     const { LocalNotifications } = await import('@capacitor/local-notifications');
-    const title = mode === 'focus' ? '专注已暂停' : '休息已暂停';
+    const title = mode === 'focus' ? '⏸ 专注已暂停' : '⏸ 休息已暂停';
     const iconColor = mode === 'focus' ? '#b3272e' : '#006d3e';
     await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
     await LocalNotifications.schedule({
-      notifications: [{ id: TIMER_NOTIF_ID, title, body: `剩余 ${formatTimerText(timeLeft)}`, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date(Date.now() + 200) } }],
+      notifications: [{ id: TIMER_NOTIF_ID, title, body: formatTimerText(timeLeft), ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
     });
   } catch { /* ignore */ }
 }
