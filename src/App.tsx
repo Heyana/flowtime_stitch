@@ -291,26 +291,29 @@ export default function App() {
     updateStreak();
 
     // Reset and transition to rest
-    setTimerState('idle');
+    setTimerState(settings.autoStartBreaks ? 'running' : 'idle');
     setTimerMode('rest');
     setTimeLeft(settings.restDuration * 60);
     setTotalDuration(settings.restDuration * 60);
+    sessionStartTimeRef.current = settings.autoStartBreaks ? new Date() : null;
   };
 
   // Skip rest cycle and start focusing immediately
   const skipRest = () => {
-    setTimerState('idle');
+    setTimerState(settings.autoStartWork ? 'running' : 'idle');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
+    sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
   };
 
   // End rest and return to idle focus setup
   const endRestSession = () => {
-    setTimerState('idle');
+    setTimerState(settings.autoStartWork ? 'running' : 'idle');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
+    sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
   };
 
   // 6. History Actions
