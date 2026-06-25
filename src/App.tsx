@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { Timer as TimerIcon, BarChart2, Coffee, User as UserIcon, Settings as SettingsIcon, Volume2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Timer as TimerIcon, BarChart2, Coffee, User as UserIcon, Settings as SettingsIcon } from 'lucide-react';
 import { Session, RhythmSettings, UserProfile, SessionType } from './types';
 import { DEFAULT_SETTINGS, DEFAULT_USER_PROFILE, INITIAL_SESSIONS } from './data';
 import TimerTab from './components/TimerTab';
@@ -12,6 +12,15 @@ import HistoryTab from './components/HistoryTab';
 import BreaksTab from './components/BreaksTab';
 import SettingsTab from './components/SettingsTab';
 import BreathingModal from './components/BreathingModal';
+import {
+  notifyTimerComplete,
+  hapticLight,
+  hapticHeavy,
+  saveBackgroundCheckpoint,
+  loadBackgroundCheckpoint,
+  calculateAdjustedTimeLeft,
+  setupBackgroundListener,
+} from './capacitor-native';
 
 export default function App() {
   // 1. Core States (loaded from localStorage or defaults)
@@ -79,7 +88,57 @@ export default function App() {
     return `${hours}:${strMinutes} ${ampm}`;
   };
 
-  // 4. Timer Logic Loop
+  // 4. Background time tracking (Capacitor + Web fallback)
+  useEffect(() => {
+    // Capacitor app state listener (resume from background)
+    let capCleanup: (() => void) | undefined;
+    setupBackgroundListener((adjustedTimeLeft) => {
+      if (adjustedTimeLeft > 0) {
+        setTimeLeft(adjustedTimeLeft);
+      } else {
+        // Timer expired while in background
+        handleTimerComplete();
+      }
+    }).then((cleanup) => {
+      capCleanup = cleanup;
+    });
+
+    // Web fallback: visibilitychange
+    const handleVisibility = () => {
+      if (document.hidden) {
+        // Going to background — save checkpoint
+        if (timerState === 'running') {
+          saveBackgroundCheckpoint({
+            timestamp: Date.now(),
+            timeLeft,
+            totalDuration,
+            timerMode,
+            timerState,
+          });
+        }
+      } else {
+        // Coming back to foreground — calculate elapsed
+        const checkpoint = loadBackgroundCheckpoint();
+        if (checkpoint && checkpoint.timerState === 'running') {
+          const adjusted = calculateAdjustedTimeLeft(checkpoint);
+          if (adjusted > 0) {
+            setTimeLeft(adjusted);
+          } else {
+            handleTimerComplete();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      capCleanup?.();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [timerState, timeLeft, totalDuration, timerMode]);
+
+  // 5. Timer Logic Loop
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (timerState === 'running') {
@@ -98,30 +157,15 @@ export default function App() {
     };
   }, [timerState, timerMode, settings]);
 
-  // Trigger audio chime or notification when timer finishes
-  const triggerAlarm = () => {
-    try {
-      const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = context.createOscillator();
-      const gain = context.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, context.currentTime); // C5 note
-      osc.frequency.setValueAtTime(659.25, context.currentTime + 0.15); // E5 note
-      osc.frequency.setValueAtTime(783.99, context.currentTime + 0.3); // G5 note
-      gain.gain.setValueAtTime(0.3, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.6);
-      osc.connect(gain);
-      gain.connect(context.destination);
-      osc.start();
-      osc.stop(context.currentTime + 0.6);
-    } catch (e) {
-      console.log('Audio context warning:', e);
-    }
-  };
+  // Native notification bridge (replaces raw Web Audio)
+  const triggerAlarm = useCallback((mode: SessionType) => {
+    notifyTimerComplete(mode === 'work' ? 'focus' : 'rest');
+  }, []);
 
   // Handle Timer completion and state transitions
   const handleTimerComplete = () => {
-    triggerAlarm();
+    triggerAlarm(timerMode);
+    hapticHeavy();
 
     const endTimeObj = new Date();
     const startTimeObj = sessionStartTimeRef.current || new Date(Date.now() - totalDuration * 1000);
@@ -198,10 +242,11 @@ export default function App() {
     }));
   };
 
-  // 5. Timer Control Triggers
+  // 6. Timer Control Triggers
   const startTimer = () => {
     setTimerState('running');
     sessionStartTimeRef.current = new Date();
+    hapticLight();
   };
 
   const pauseTimer = () => {

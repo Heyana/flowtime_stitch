@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Flowtime</string>
+    <string name="title_activity_main">Flowtime</string>
+    <string name="package_name">com.flowtime.app</string>
+    <string name="custom_url_scheme">com.flowtime.app</string>
+</resources>
