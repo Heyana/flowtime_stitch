@@ -178,6 +178,42 @@ const zh: Record<string, string> = {
   'debug.notif.countdownTitle': 'Flowtime 倒计时',
   'debug.notif.countdownBody': '秒后完成',
 
+  // Notifications
+  'notif.debugTitle': 'Flowtime 调试',
+  'notif.countdownDone': '倒计时完成！开始专注。',
+
+  // Stretches
+  'stretch.neckTilt': '颈部侧倾',
+  'stretch.neckTiltDesc': '缓慢将头部向左侧倾斜，左耳靠近左肩。保持，然后在右侧重复。',
+  'stretch.shoulderRoll': '肩部环绕',
+  'stretch.shoulderRollDesc': '向后绕肩 5 次，然后向前 5 次。',
+  'stretch.seatedTwist': '坐姿扭转',
+  'stretch.seatedTwistDesc': '将躯干向右扭转，借助椅子支撑。左侧重复。',
+  'stretch.wristStretch': '手腕拉伸',
+  'stretch.wristStretchDesc': '向前伸展手臂，轻轻向后拉手指，拉伸前臂。',
+  'stretch.reset': '重置拉伸',
+
+  // Tooltips
+  'tooltip.openSettings': '打开设置',
+  'tooltip.activeTimer': '计时器',
+  'tooltip.sessionHistory': '会话记录',
+  'tooltip.mindfulBreaks': '休息活动',
+  'tooltip.settings': '设置',
+  'tooltip.debugPanel': '调试面板',
+  'tooltip.exit': '退出',
+  'tooltip.avatarPreview': '头像预览',
+  'tooltip.avatarOption': '选项',
+
+  // Default values
+  'default.taskTitle': '深度工作',
+  'default.restTitle': '休息 / 充电',
+  'default.partialTitle': '深度工作（部分）',
+  'default.coffeeBreak': '咖啡休息',
+  'default.coffeeBreakEn': 'Coffee Break',
+  'default.deepWorkEn': 'Deep Work',
+  'default.startTime': '09:00',
+  'default.endTime': '09:25',
+
   // Days
   'unit.days': '天',
   'unit.minutes': '分钟',
@@ -317,6 +353,38 @@ const en: Record<string, string> = {
   'debug.msg.countdownCancel': 'Countdown cancelled',
   'debug.notif.countdownTitle': 'Flowtime Countdown',
   'debug.notif.countdownBody': 's remaining',
+
+  'notif.debugTitle': 'Flowtime Debug',
+  'notif.countdownDone': 'Countdown finished! Time to focus.',
+
+  'stretch.neckTilt': 'Neck Tilt',
+  'stretch.neckTiltDesc': 'Gently tilt your head left ear to left shoulder. Hold, then repeat on right.',
+  'stretch.shoulderRoll': 'Shoulder Roll',
+  'stretch.shoulderRollDesc': 'Roll your shoulders backward 5 times, then forward 5 times.',
+  'stretch.seatedTwist': 'Seated Twist',
+  'stretch.seatedTwistDesc': 'Twist your torso to the right, using your chair for support. Repeat left.',
+  'stretch.wristStretch': 'Wrist Stretch',
+  'stretch.wristStretchDesc': 'Extend arm forward, pull fingers back gently to stretch forearm.',
+  'stretch.reset': 'Reset stretching flow',
+
+  'tooltip.openSettings': 'Open Settings',
+  'tooltip.activeTimer': 'Active Timer',
+  'tooltip.sessionHistory': 'Session History',
+  'tooltip.mindfulBreaks': 'Mindful Breaks',
+  'tooltip.settings': 'Settings',
+  'tooltip.debugPanel': 'Debug Panel',
+  'tooltip.exit': 'Exit',
+  'tooltip.avatarPreview': 'Avatar preview',
+  'tooltip.avatarOption': 'Option',
+
+  'default.taskTitle': 'Deep Work',
+  'default.restTitle': 'Rest Break / Recharge',
+  'default.partialTitle': 'Deep Work (Partial)',
+  'default.coffeeBreak': 'Coffee Break',
+  'default.coffeeBreakEn': 'Coffee Break',
+  'default.deepWorkEn': 'Deep Work',
+  'default.startTime': '09:00 AM',
+  'default.endTime': '09:25 AM',
 
   'unit.days': 'Days',
   'unit.minutes': 'minutes',

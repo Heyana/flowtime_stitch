@@ -146,10 +146,10 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-on-surface-variant font-medium tracking-wider uppercase">{t('history.logModal.type')}</span>
                 <div className="grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => { setNewType('work'); if (newTitle === 'Coffee Break') setNewTitle('Deep Work'); }}
+                  <button type="button" onClick={() => { setNewType('work'); if (newTitle === t('default.coffeeBreak')) setNewTitle(t('default.deepWorkEn')); }}
                     className={`py-2 px-4 rounded-full text-xs font-semibold cursor-pointer border ${newType === 'work' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-on-surface-variant border-surface-container-high'}`}
                   >{t('history.logModal.focusSession')}</button>
-                  <button type="button" onClick={() => { setNewType('rest'); if (newTitle === 'Deep Work' || !newTitle) setNewTitle('Coffee Break'); }}
+                  <button type="button" onClick={() => { setNewType('rest'); if (newTitle === t('default.deepWorkEn') || !newTitle) setNewTitle(t('default.coffeeBreak')); }}
                     className={`py-2 px-4 rounded-full text-xs font-semibold cursor-pointer border ${newType === 'rest' ? 'bg-secondary text-on-secondary border-secondary' : 'bg-transparent text-on-surface-variant border-surface-container-high'}`}
                   >{t('history.logModal.restBreak')}</button>
                 </div>
@@ -171,11 +171,11 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs text-on-surface-variant font-medium tracking-wider uppercase">{t('history.logModal.startTime')}</label>
-                  <input type="text" value={newStart} onChange={(e) => setNewStart(e.target.value)} placeholder="09:00 AM" className="w-full bg-surface-container px-4 py-2 rounded-full text-xs font-semibold border-none text-center" />
+                  <input type="text" value={newStart} onChange={(e) => setNewStart(e.target.value)} placeholder={t('default.startTime')} className="w-full bg-surface-container px-4 py-2 rounded-full text-xs font-semibold border-none text-center" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs text-on-surface-variant font-medium tracking-wider uppercase">{t('history.logModal.endTime')}</label>
-                  <input type="text" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} placeholder="09:25 AM" className="w-full bg-surface-container px-4 py-2 rounded-full text-xs font-semibold border-none text-center" />
+                  <input type="text" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} placeholder={t('default.endTime')} className="w-full bg-surface-container px-4 py-2 rounded-full text-xs font-semibold border-none text-center" />
                 </div>
               </div>
               <button type="submit" className="w-full bg-primary text-on-primary font-semibold py-3 rounded-full text-sm mt-2 active:scale-95 transition-all shadow-soft cursor-pointer">{t('history.logModal.save')}</button>

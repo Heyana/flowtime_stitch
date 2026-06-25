@@ -23,10 +23,10 @@ export default function BreaksTab({ onStartBreathe }: BreaksTabProps) {
   const [stretchTimeLeft, setStretchTimeLeft] = useState(30);
 
   const stretches = [
-    { name: 'Neck Tilt', desc: 'Gently tilt your head left ear to left shoulder. Hold, then repeat on right.' },
-    { name: 'Shoulder Roll', desc: 'Roll your shoulders backward 5 times, then forward 5 times.' },
-    { name: 'Seated Twist', desc: 'Twist your torso to the right, using your chair for support. Repeat left.' },
-    { name: 'Wrist Stretch', desc: 'Extend arm forward, pull fingers back gently to stretch forearm.' },
+    { name: t('stretch.neckTilt'), desc: t('stretch.neckTiltDesc') },
+    { name: t('stretch.shoulderRoll'), desc: t('stretch.shoulderRollDesc') },
+    { name: t('stretch.seatedTwist'), desc: t('stretch.seatedTwistDesc') },
+    { name: t('stretch.wristStretch'), desc: t('stretch.wristStretchDesc') },
   ];
 
   useEffect(() => {
@@ -157,7 +157,7 @@ export default function BreaksTab({ onStartBreathe }: BreaksTabProps) {
                 >{stretchActive ? t('breaks.pause') : t('breaks.startStretch')}</button>
                 <button onClick={resetStretch}
                   className="px-3 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-full font-semibold text-xs active:scale-95 transition-all flex items-center justify-center cursor-pointer"
-                  title="Reset stretching flow"
+                  title={t('stretch.reset')}
                 ><RefreshCw className="w-4 h-4" /></button>
               </div>
             </div>

@@ -26,7 +26,7 @@ async function showTestNotification(): Promise<void> {
       await LocalNotifications.schedule({
         notifications: [{
           id: 9998,
-          title: 'Flowtime Debug',
+          title: t('notif.debugTitle'),
           body: 'This is a test notification popup!',
           schedule: { at: new Date(Date.now() + 200) },
         }],
@@ -113,7 +113,7 @@ export default function DebugTab() {
           notifications: [{
             id: 9990,
             title: 'Flowtime',
-            body: 'Countdown finished! Time to focus.',
+            body: t('notif.countdownDone'),
             schedule: { at: new Date(Date.now() + 100) },
           }],
         });

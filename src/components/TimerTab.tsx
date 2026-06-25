@@ -82,7 +82,7 @@ export default function TimerTab({
             {formatTime(timeLeft)}
           </span>
           <span className="font-sans text-sm text-on-surface-variant mt-2 max-w-[200px] truncate font-medium">
-            {timerState === 'idle' ? t('timer.startFocus') : isWork ? (taskTitle || 'Deep Work') : t('timer.focusPlaceholder')}
+            {timerState === 'idle' ? t('timer.startFocus') : isWork ? (taskTitle || t('default.taskTitle')) : t('timer.focusPlaceholder')}
           </span>
         </div>
       </div>

@@ -68,7 +68,7 @@ export default function BreathingModal({ onClose }: BreathingModalProps) {
           <Wind className="w-5 h-5" />
           <span className="font-display text-sm font-bold tracking-wider uppercase text-on-surface">{t('breathing.title')}</span>
         </div>
-        <button onClick={onClose} className="p-2 bg-surface-container hover:bg-surface-container-high rounded-full transition-colors cursor-pointer text-on-surface-variant" title="Exit"><X className="w-5 h-5" /></button>
+        <button onClick={onClose} className="p-2 bg-surface-container hover:bg-surface-container-high rounded-full transition-colors cursor-pointer text-on-surface-variant" title={t('tooltip.exit')}><X className="w-5 h-5" /></button>
       </div>
       <div className="flex-grow flex flex-col items-center justify-center gap-12 w-full max-w-md">
         <div className="relative w-72 h-72 flex items-center justify-center">

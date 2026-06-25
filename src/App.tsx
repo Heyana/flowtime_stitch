@@ -52,7 +52,7 @@ export default function App() {
   const [timerMode, setTimerMode] = useState<SessionType>('work');
   const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
   const [totalDuration, setTotalDuration] = useState(settings.workDuration * 60);
-  const [taskTitle, setTaskTitle] = useState('Deep Work');
+  const [taskTitle, setTaskTitle] = useState(t('default.taskTitle'));
 
   // Tracks the start time of the active session to log history accurately
   const sessionStartTimeRef = useRef<Date | null>(null);
@@ -182,7 +182,7 @@ export default function App() {
     const newSessionItem: Session = {
       id: `sess-${Date.now()}`,
       type: timerMode,
-      title: timerMode === 'work' ? (taskTitle || 'Deep Work') : 'Rest Break / Recharge',
+      title: timerMode === 'work' ? (taskTitle || t('default.taskTitle')) : t('default.restTitle'),
       durationMinutes: Math.round(totalDuration / 60),
       startTime: formatHourMinutes(startTimeObj),
       endTime: formatHourMinutes(endTimeObj),
@@ -280,7 +280,7 @@ export default function App() {
     const newSessionItem: Session = {
       id: `sess-${Date.now()}`,
       type: 'work',
-      title: taskTitle || 'Deep Work (Partial)',
+      title: taskTitle || t('default.partialTitle'),
       durationMinutes: elapsedMinutes,
       startTime: formatHourMinutes(startTimeObj),
       endTime: formatHourMinutes(endTimeObj),
@@ -365,7 +365,7 @@ export default function App() {
           className={`w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-all active:scale-90 duration-200 cursor-pointer ${
             activeTab === 'settings' ? 'text-primary bg-primary/5 border border-primary/10' : 'text-on-surface-variant'
           }`}
-          title="Open Settings"
+          title={t('tooltip.openSettings')}
         >
           <SettingsIcon className="w-5 h-5" />
         </button>
@@ -439,7 +439,7 @@ export default function App() {
                 : 'bg-secondary text-on-secondary scale-110 shadow-soft'
               : 'text-on-surface-variant hover:bg-surface-container-low'
           }`}
-          title="Active Timer"
+          title={t('tooltip.activeTimer')}
         >
           <TimerIcon className={`w-5.5 h-5.5 ${activeTab === 'timer' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
@@ -452,7 +452,7 @@ export default function App() {
               ? 'bg-primary text-on-primary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
           }`}
-          title="Session History"
+          title={t('tooltip.sessionHistory')}
         >
           <BarChart2 className={`w-5.5 h-5.5 ${activeTab === 'history' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
@@ -465,7 +465,7 @@ export default function App() {
               ? 'bg-secondary text-on-secondary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
           }`}
-          title="Mindful Breaks"
+          title={t('tooltip.mindfulBreaks')}
         >
           <Coffee className={`w-5.5 h-5.5 ${activeTab === 'breaks' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
@@ -478,7 +478,7 @@ export default function App() {
               ? 'bg-primary text-on-primary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
           }`}
-          title="Settings"
+          title={t('tooltip.settings')}
         >
           <UserIcon className={`w-5.5 h-5.5 ${activeTab === 'settings' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
@@ -491,7 +491,7 @@ export default function App() {
               ? 'bg-tertiary text-on-tertiary scale-110 shadow-soft' 
               : 'text-on-surface-variant/30 hover:bg-surface-container-low'
           }`}
-          title="Debug Panel"
+          title={t('tooltip.debugPanel')}
         >
           <Bug className={`w-5.5 h-5.5 ${activeTab === 'debug' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
