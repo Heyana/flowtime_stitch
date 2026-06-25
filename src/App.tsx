@@ -60,6 +60,9 @@ export default function App() {
   // Ref to avoid stale closure in timer loop effect
   const handleTimerCompleteRef = useRef<() => void>(() => {});
 
+  // Flag to defer completion outside setTimeLeft updater
+  const shouldCompleteRef = useRef(false);
+
   // Locale state
   const [locale, setLocaleState] = useState(getLocale());
 
@@ -147,13 +150,21 @@ export default function App() {
   }, [timerState, timeLeft, totalDuration, timerMode]);
 
   // 5. Timer Logic Loop
+  // Deferred completion: flag in updater, fire outside to avoid setState conflict
+  useEffect(() => {
+    if (shouldCompleteRef.current && timerState === 'running' && timeLeft === 0) {
+      shouldCompleteRef.current = false;
+      handleTimerCompleteRef.current();
+    }
+  });
+
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (timerState === 'running') {
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            handleTimerCompleteRef.current();
+            shouldCompleteRef.current = true;
             return 0;
           }
           return prev - 1;
