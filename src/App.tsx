@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer as TimerIcon, BarChart2, Coffee, User as UserIcon, Settings as SettingsIcon } from 'lucide-react';
+import { Timer as TimerIcon, BarChart2, Coffee, User as UserIcon, Settings as SettingsIcon, Bug } from 'lucide-react';
 import { Session, RhythmSettings, UserProfile, SessionType } from './types';
 import { DEFAULT_SETTINGS, DEFAULT_USER_PROFILE, INITIAL_SESSIONS } from './data';
 import TimerTab from './components/TimerTab';
@@ -12,6 +12,7 @@ import HistoryTab from './components/HistoryTab';
 import BreaksTab from './components/BreaksTab';
 import SettingsTab from './components/SettingsTab';
 import BreathingModal from './components/BreathingModal';
+import DebugTab from './components/DebugTab';
 import {
   notifyTimerComplete,
   hapticLight,
@@ -40,7 +41,7 @@ export default function App() {
   });
 
   // Tab Navigation State: 'timer' | 'history' | 'breaks' | 'settings'
-  const [activeTab, setActiveTab] = useState<'timer' | 'history' | 'breaks' | 'settings'>('timer');
+  const [activeTab, setActiveTab] = useState<'timer' | 'history' | 'breaks' | 'settings' | 'debug'>('timer');
 
   // Mindfulness Guided Breathing Modal Overlay
   const [showBreathingModal, setShowBreathingModal] = useState(false);
@@ -410,6 +411,10 @@ export default function App() {
             onSaveProfile={setUserProfile}
           />
         )}
+
+        {activeTab === 'debug' && (
+          <DebugTab />
+        )}
       </main>
 
       {/* 3. Bottom Pill Navigation Bar (Fixed for thumb access) */}
@@ -466,6 +471,19 @@ export default function App() {
           title="Settings"
         >
           <UserIcon className={`w-5.5 h-5.5 ${activeTab === 'settings' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
+        </button>
+
+        {/* Tab 5: Debug (testing only) */}
+        <button 
+          onClick={() => setActiveTab('debug')}
+          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
+            activeTab === 'debug' 
+              ? 'bg-tertiary text-on-tertiary scale-110 shadow-soft' 
+              : 'text-on-surface-variant/30 hover:bg-surface-container-low'
+          }`}
+          title="Debug Panel"
+        >
+          <Bug className={`w-5.5 h-5.5 ${activeTab === 'debug' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
       </nav>
 
