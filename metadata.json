@@ -1,0 +1,6 @@
+{
+  "name": "Flowtime",
+  "description": "A polished, liquid-rounded productivity timer featuring customizable focus and rest intervals, dynamic live timers, recommended zen activities, and comprehensive session history trackers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
