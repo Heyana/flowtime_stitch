@@ -349,14 +349,14 @@ export default function App() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-xs text-on-surface-variant font-medium">Hello,</span>
+            <span className="text-xs text-on-surface-variant font-medium">{t('app.hello')}</span>
             <span className="text-sm font-bold text-on-surface leading-tight">{userProfile.name}</span>
           </div>
         </div>
 
         {/* Brand Logo Display */}
         <h1 className="font-display text-xl md:text-2xl font-extrabold text-primary tracking-tight flex items-center gap-1.5 cursor-pointer" onClick={() => setActiveTab('timer')}>
-          Flowtime
+          {t('app.brand')}
         </h1>
 
         {/* Shortcuts: Direct navigate to settings */}
