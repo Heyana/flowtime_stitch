@@ -22,6 +22,7 @@ import {
   calculateAdjustedTimeLeft,
   setupBackgroundListener,
 } from './capacitor-native';
+import { t, getLocale, setLocale, onLocaleChange } from './i18n';
 
 export default function App() {
   // 1. Core States (loaded from localStorage or defaults)
@@ -55,6 +56,12 @@ export default function App() {
 
   // Tracks the start time of the active session to log history accurately
   const sessionStartTimeRef = useRef<Date | null>(null);
+
+  // Ref to avoid stale closure in timer loop effect
+  const handleTimerCompleteRef = useRef<() => void>(() => {});
+
+  // Locale state
+  const [locale, setLocaleState] = useState(getLocale());
 
   // 3. Persist core states to localStorage whenever they change
   useEffect(() => {
@@ -98,7 +105,7 @@ export default function App() {
         setTimeLeft(adjustedTimeLeft);
       } else {
         // Timer expired while in background
-        handleTimerComplete();
+        handleTimerCompleteRef.current();
       }
     }).then((cleanup) => {
       capCleanup = cleanup;
@@ -125,7 +132,7 @@ export default function App() {
           if (adjusted > 0) {
             setTimeLeft(adjusted);
           } else {
-            handleTimerComplete();
+            handleTimerCompleteRef.current();
           }
         }
       }
@@ -146,7 +153,7 @@ export default function App() {
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            handleTimerComplete();
+            handleTimerCompleteRef.current();
             return 0;
           }
           return prev - 1;
@@ -164,7 +171,7 @@ export default function App() {
   }, []);
 
   // Handle Timer completion and state transitions
-  const handleTimerComplete = () => {
+  const handleTimerComplete = useCallback(() => {
     triggerAlarm(timerMode);
     hapticHeavy();
 
@@ -198,8 +205,6 @@ export default function App() {
       setTotalDuration(restSecs);
       setTimerState(settings.autoStartBreaks ? 'running' : 'idle');
       sessionStartTimeRef.current = settings.autoStartBreaks ? new Date() : null;
-      
-      // Auto-navigate to timer view so the user can see recommended exercises immediately
       setActiveTab('timer');
     } else {
       // Transition to Work
@@ -211,7 +216,12 @@ export default function App() {
       sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
       setActiveTab('timer');
     }
-  };
+  }, [timerMode, settings, taskTitle, totalDuration, triggerAlarm]);
+
+  // Keep timer completion callback ref in sync (avoids stale closure bug)
+  useEffect(() => {
+    handleTimerCompleteRef.current = handleTimerComplete;
+  }, [handleTimerComplete]);
 
   // Helper to handle daily streaks
   const updateStreak = () => {

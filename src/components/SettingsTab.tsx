@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
-import { User, Settings, Shield, Bell, Check, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Settings, Shield, Bell, Check, Clock, Languages } from 'lucide-react';
 import { RhythmSettings, UserProfile } from '../types';
 import { AVATARS } from '../data';
+import { getLocale, setLocale, t, onLocaleChange, Locale } from '../i18n';
 
 interface SettingsTabProps {
   settings: RhythmSettings;
@@ -34,6 +35,11 @@ export default function SettingsTab({
   const [selectedAvatar, setSelectedAvatar] = useState(userProfile.avatarUrl);
 
   const [toastMessage, setToastMessage] = useState('');
+  const [locale, setLocalLocale] = useState<Locale>(getLocale());
+
+  useEffect(() => {
+    return onLocaleChange(() => setLocalLocale(getLocale()));
+  }, []);
 
   const handleSaveAll = () => {
     onSaveSettings({
@@ -52,7 +58,7 @@ export default function SettingsTab({
       avatarUrl: selectedAvatar,
     });
 
-    setToastMessage('Profile and Settings saved successfully!');
+    setToastMessage(t('settings.saved'));
     setTimeout(() => {
       setToastMessage('');
     }, 3000);
@@ -280,6 +286,37 @@ export default function SettingsTab({
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Language */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold text-on-surface-variant tracking-wider uppercase pl-2">{t('settings.language')}</h2>
+        <div className="bg-surface-container-lowest shadow-soft rounded-xl p-6 md:p-8">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setLocale('zh')}
+              className={`py-3 px-4 rounded-full text-sm font-semibold cursor-pointer border transition-all ${
+                locale === 'zh'
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-transparent text-on-surface-variant border-surface-container-high hover:border-primary/30'
+              }`}
+            >
+              {t('settings.langZh')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale('en')}
+              className={`py-3 px-4 rounded-full text-sm font-semibold cursor-pointer border transition-all ${
+                locale === 'en'
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-transparent text-on-surface-variant border-surface-container-high hover:border-primary/30'
+              }`}
+            >
+              {t('settings.langEn')}
+            </button>
+          </div>
         </div>
       </section>
 

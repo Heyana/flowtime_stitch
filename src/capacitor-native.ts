@@ -28,6 +28,54 @@ async function isCapacitorAvailable(): Promise<boolean> {
 }
 
 // ---------------------------------------------------------------------------
+// Web Audio — two distinct chimes
+// ---------------------------------------------------------------------------
+
+/** Focus-complete chime: ascending C5→E5→G5 (bright, energetic) */
+export function playWorkChime(): void {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);      // C5
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
+    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.3);  // G5
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.6);
+  } catch (e) {
+    console.log('[Flowtime] Web Audio work chime failed:', e);
+  }
+}
+
+/** Rest-complete chime: descending G4→E4→C4 (soft, calming) */
+export function playRestChime(): void {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(392.00, ctx.currentTime);      // G4
+    osc.frequency.setValueAtTime(329.63, ctx.currentTime + 0.2); // E4
+    osc.frequency.setValueAtTime(261.63, ctx.currentTime + 0.4); // C4
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  } catch (e) {
+    console.log('[Flowtime] Web Audio rest chime failed:', e);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Local Notifications (ring + popup)
 // ---------------------------------------------------------------------------
 
@@ -36,23 +84,17 @@ export async function notifyTimerComplete(mode: 'focus' | 'rest'): Promise<void>
     try {
       const { LocalNotifications } = await import('@capacitor/local-notifications');
 
-      // Request permission first (iOS requires this)
       const permResult = await LocalNotifications.requestPermissions();
       if (permResult.display !== 'granted') {
         console.warn('[Flowtime] Notification permission denied, falling back to web audio');
-        fallbackWebAudio();
+        mode === 'focus' ? playWorkChime() : playRestChime();
         return;
       }
 
-      const title =
-        mode === 'focus'
-          ? 'Focus Session Complete'
-          : 'Rest Break Over';
-
-      const body =
-        mode === 'focus'
-          ? 'Time to take a break. Stretch, hydrate, or breathe.'
-          : 'Ready to start your next focus session.';
+      const title = mode === 'focus' ? 'Focus Session Complete' : 'Rest Break Over';
+      const body = mode === 'focus'
+        ? 'Time to take a break. Stretch, hydrate, or breathe.'
+        : 'Ready to start your next focus session.';
 
       await LocalNotifications.schedule({
         notifications: [
@@ -60,40 +102,19 @@ export async function notifyTimerComplete(mode: 'focus' | 'rest'): Promise<void>
             id: Date.now(),
             title,
             body,
-            sound: 'timer_end.wav',
+            sound: mode === 'focus' ? 'focus_end.wav' : 'rest_end.wav',
             smallIcon: 'ic_stat_flowtime',
             iconColor: mode === 'focus' ? '#b3272e' : '#006d3e',
-            schedule: { at: new Date(Date.now() + 100) }, // fire almost immediately
+            schedule: { at: new Date(Date.now() + 100) },
           },
         ],
       });
     } catch (e) {
       console.error('[Flowtime] LocalNotifications failed:', e);
-      fallbackWebAudio();
+      mode === 'focus' ? playWorkChime() : playRestChime();
     }
   } else {
-    fallbackWebAudio();
-  }
-}
-
-function fallbackWebAudio(): void {
-  try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
-    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.6);
-  } catch (e) {
-    console.log('[Flowtime] Web Audio fallback warning:', e);
+    mode === 'focus' ? playWorkChime() : playRestChime();
   }
 }
 
@@ -128,19 +149,17 @@ export async function hapticHeavy(): Promise<void> {
 const BG_KEY = 'flowtime_bg_checkpoint';
 
 export interface BackgroundCheckpoint {
-  timestamp: number; // Date.now() when going to background
-  timeLeft: number; // seconds left on timer
-  totalDuration: number; // total seconds for this session
+  timestamp: number;
+  timeLeft: number;
+  totalDuration: number;
   timerMode: 'work' | 'rest';
   timerState: 'running' | 'paused' | 'idle';
 }
 
-/** Save checkpoint before app goes to background. */
 export function saveBackgroundCheckpoint(checkpoint: BackgroundCheckpoint): void {
   localStorage.setItem(BG_KEY, JSON.stringify(checkpoint));
 }
 
-/** Load and clear checkpoint when app resumes. Returns null if none. */
 export function loadBackgroundCheckpoint(): BackgroundCheckpoint | null {
   const raw = localStorage.getItem(BG_KEY);
   if (!raw) return null;
@@ -152,10 +171,6 @@ export function loadBackgroundCheckpoint(): BackgroundCheckpoint | null {
   }
 }
 
-/**
- * Calculate elapsed milliseconds since the checkpoint.
- * Returns the adjusted timeLeft (in seconds), clamped to >= 0.
- */
 export function calculateAdjustedTimeLeft(checkpoint: BackgroundCheckpoint): number {
   const now = Date.now();
   const elapsedMs = now - checkpoint.timestamp;
@@ -164,7 +179,7 @@ export function calculateAdjustedTimeLeft(checkpoint: BackgroundCheckpoint): num
 }
 
 // ---------------------------------------------------------------------------
-// App state listener — call this once in App.tsx useEffect
+// App state listener
 // ---------------------------------------------------------------------------
 
 type BackgroundResumeCallback = (adjustedTimeLeft: number) => void;
@@ -177,11 +192,8 @@ export async function setupBackgroundListener(
   try {
     const { App } = await import('@capacitor/app');
 
-    // Note: App.addListener returns PluginListenerHandle in Capacitor 5+
-    // but the dynamic import may not carry the exact type.
     const listener = await App.addListener('appStateChange', (state: { isActive: boolean }) => {
       if (state.isActive) {
-        // App came back to foreground
         const checkpoint = loadBackgroundCheckpoint();
         if (checkpoint && checkpoint.timerState === 'running') {
           const adjusted = calculateAdjustedTimeLeft(checkpoint);
