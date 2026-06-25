@@ -301,30 +301,30 @@ export default function App() {
     setSessions((prev) => [newSessionItem, ...prev]);
     updateStreak();
 
-    // Reset and transition to rest
-    setTimerState(settings.autoStartBreaks ? 'running' : 'idle');
+    // Reset and transition to rest (explicit action → always start)
+    setTimerState('running');
     setTimerMode('rest');
     setTimeLeft(settings.restDuration * 60);
     setTotalDuration(settings.restDuration * 60);
-    sessionStartTimeRef.current = settings.autoStartBreaks ? new Date() : null;
+    sessionStartTimeRef.current = new Date();
   };
 
-  // Skip rest cycle and start focusing immediately
+  // Skip rest → start work immediately (explicit user action)
   const skipRest = () => {
-    setTimerState(settings.autoStartWork ? 'running' : 'idle');
+    setTimerState('running');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
-    sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
+    sessionStartTimeRef.current = new Date();
   };
 
-  // End rest and return to idle focus setup
+  // End rest → start work immediately (explicit user action)
   const endRestSession = () => {
-    setTimerState(settings.autoStartWork ? 'running' : 'idle');
+    setTimerState('running');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
-    sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
+    sessionStartTimeRef.current = new Date();
   };
 
   // 6. History Actions
