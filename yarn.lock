@@ -210,6 +210,11 @@
   resolved "https://registry.npmjs.org/@capacitor/local-notifications/-/local-notifications-8.2.0.tgz"
   integrity sha512-fvLY0w2w4MiX+DD4+Wv4DOwOLdzKZsMDwAcRv/Juudd+QbKbn69s6cM3xVqPwAiDqfnqsY4/S8xtQD6M73wY2A==
 
+"@capawesome-team/capacitor-android-foreground-service@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.npmjs.org/@capawesome-team/capacitor-android-foreground-service/-/capacitor-android-foreground-service-8.1.0.tgz"
+  integrity sha512-q1LaZQ5K2cu2IXjbabwssF+RpUBikLxkOHYS69ahXz6a1kIsr2jC4RU1bwAEBTopRz0ccgfai0dSSTdqbtEwhw==
+
 "@esbuild/win32-x64@0.25.12":
   version "0.25.12"
   resolved "https://registry.npmmirror.com/@esbuild/win32-x64/-/win32-x64-0.25.12.tgz"

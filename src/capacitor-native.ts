@@ -47,22 +47,34 @@ function countdownBar(filled: number, total: number): string {
   return '█'.repeat(filledLen) + '░'.repeat(barLen - filledLen);
 }
 
+let _foregroundServiceReady = false;
+
+async function ensureForegroundServiceChannel(): Promise<void> {
+  if (_foregroundServiceReady) return;
+  if (!(await isCapacitorAvailable())) return;
+  try {
+    const { ForegroundService, Importance } = await import('@capawesome-team/capacitor-android-foreground-service');
+    await ForegroundService.createNotificationChannel({
+      id: 'flowtime_timer',
+      name: 'Flowtime Timer',
+      description: 'Persistent countdown while timer is active',
+      importance: Importance.Low,
+    });
+    _foregroundServiceReady = true;
+  } catch (e) { console.error('[Flowtime] Channel creation failed:', e); }
+}
+
 export async function startTimerNotification(timeLeft: number, mode: 'focus' | 'rest'): Promise<void> {
   if (!(await isCapacitorAvailable())) return;
   stopTimerNotification();
   try {
-    const { LocalNotifications } = await import('@capacitor/local-notifications');
-    await LocalNotifications.requestPermissions();
+    await ensureForegroundServiceChannel();
+    const { ForegroundService } = await import('@capawesome-team/capacitor-android-foreground-service');
     const title = mode === 'focus' ? '🔴 专注中' : '🟢 休息中';
-    const iconColor = mode === 'focus' ? '#b3272e' : '#006d3e';
     const body = `${formatTimerText(timeLeft)}\n${countdownBar(timeLeft, timeLeft)}`;
-
-    await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
-    await LocalNotifications.schedule({
-      notifications: [{ id: TIMER_NOTIF_ID, title, body, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
+    await ForegroundService.startForegroundService({
+      id: TIMER_NOTIF_ID, title, body, smallIcon: 'ic_stat_flowtime', silent: true, notificationChannelId: 'flowtime_timer',
     });
-
-    // Update every 3 seconds for smoother countdown
     const total = timeLeft;
     let remaining = timeLeft;
     _timerNotifInterval = setInterval(async () => {
@@ -70,26 +82,24 @@ export async function startTimerNotification(timeLeft: number, mode: 'focus' | '
       if (remaining <= 0) return;
       try {
         const bar = countdownBar(remaining, total);
-        const { LocalNotifications: LN } = await import('@capacitor/local-notifications');
-        await LN.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
-        await LN.schedule({
-          notifications: [{ id: TIMER_NOTIF_ID, title, body: `${formatTimerText(remaining)}\n${bar}`, ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
+        const { ForegroundService: FS } = await import('@capawesome-team/capacitor-android-foreground-service');
+        await FS.updateForegroundService({
+          id: TIMER_NOTIF_ID, title, body: `${formatTimerText(remaining)}\n${bar}`, smallIcon: 'ic_stat_flowtime', silent: true, notificationChannelId: 'flowtime_timer',
         });
-      } catch { /* ignore update failures */ }
+      } catch { /* ignore */ }
     }, 3000);
-  } catch (e) { console.error('[Flowtime] Timer notification failed:', e); }
+  } catch (e) { console.error('[Flowtime] Foreground service start failed:', e); }
 }
 
 export async function pauseTimerNotification(timeLeft: number, mode: 'focus' | 'rest'): Promise<void> {
   if (!(await isCapacitorAvailable())) return;
   stopTimerNotification();
   try {
-    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    await ensureForegroundServiceChannel();
+    const { ForegroundService } = await import('@capawesome-team/capacitor-android-foreground-service');
     const title = mode === 'focus' ? '⏸ 专注已暂停' : '⏸ 休息已暂停';
-    const iconColor = mode === 'focus' ? '#b3272e' : '#006d3e';
-    await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] });
-    await LocalNotifications.schedule({
-      notifications: [{ id: TIMER_NOTIF_ID, title, body: formatTimerText(timeLeft), ongoing: true, autoCancel: false, iconColor, smallIcon: 'ic_stat_flowtime', schedule: { at: new Date() } }],
+    await ForegroundService.startForegroundService({
+      id: TIMER_NOTIF_ID, title, body: formatTimerText(timeLeft), smallIcon: 'ic_stat_flowtime', silent: true, notificationChannelId: 'flowtime_timer',
     });
   } catch { /* ignore */ }
 }
@@ -97,7 +107,7 @@ export async function pauseTimerNotification(timeLeft: number, mode: 'focus' | '
 export async function stopTimerNotification(): Promise<void> {
   if (_timerNotifInterval) { clearInterval(_timerNotifInterval); _timerNotifInterval = null; }
   if (!(await isCapacitorAvailable())) return;
-  try { const { LocalNotifications } = await import('@capacitor/local-notifications'); await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIF_ID }] }); } catch { /* ignore */ }
+  try { const { ForegroundService } = await import('@capawesome-team/capacitor-android-foreground-service'); await ForegroundService.stopForegroundService(); } catch { /* ignore */ }
 }
 
 // ---------------------------------------------------------------------------

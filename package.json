@@ -17,6 +17,7 @@
     "@capacitor/core": "^8.4.1",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.2.0",
+    "@capawesome-team/capacitor-android-foreground-service": "^8.1.0",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/sora": "^5.2.8",
     "@google/genai": "^2.4.0",
