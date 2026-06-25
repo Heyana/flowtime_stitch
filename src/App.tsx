@@ -21,6 +21,9 @@ import {
   loadBackgroundCheckpoint,
   calculateAdjustedTimeLeft,
   setupBackgroundListener,
+  startTimerNotification,
+  pauseTimerNotification,
+  stopTimerNotification,
 } from './capacitor-native';
 import { t, getLocale, setLocale, onLocaleChange } from './i18n';
 
@@ -185,6 +188,7 @@ export default function App() {
   const handleTimerComplete = useCallback(() => {
     triggerAlarm(timerMode);
     hapticHeavy();
+    stopTimerNotification();
 
     const endTimeObj = new Date();
     const startTimeObj = sessionStartTimeRef.current || new Date(Date.now() - totalDuration * 1000);
@@ -217,6 +221,7 @@ export default function App() {
       setTimerState(settings.autoStartBreaks ? 'running' : 'idle');
       sessionStartTimeRef.current = settings.autoStartBreaks ? new Date() : null;
       setActiveTab('timer');
+      if (settings.autoStartBreaks) startTimerNotification(restSecs, 'rest');
     } else {
       // Transition to Work
       setTimerMode('work');
@@ -226,6 +231,7 @@ export default function App() {
       setTimerState(settings.autoStartWork ? 'running' : 'idle');
       sessionStartTimeRef.current = settings.autoStartWork ? new Date() : null;
       setActiveTab('timer');
+      if (settings.autoStartWork) startTimerNotification(workSecs, 'focus');
     }
   }, [timerMode, settings, taskTitle, totalDuration, triggerAlarm]);
 
@@ -269,14 +275,17 @@ export default function App() {
     setTimerState('running');
     sessionStartTimeRef.current = new Date();
     hapticLight();
+    startTimerNotification(timeLeft, timerMode === 'work' ? 'focus' : 'rest');
   };
 
   const pauseTimer = () => {
     setTimerState('paused');
+    pauseTimerNotification(timeLeft, timerMode === 'work' ? 'focus' : 'rest');
   };
 
   const resumeTimer = () => {
     setTimerState('running');
+    startTimerNotification(timeLeft, timerMode === 'work' ? 'focus' : 'rest');
   };
 
   // Complete work early and switch to break
@@ -307,24 +316,29 @@ export default function App() {
     setTimeLeft(settings.restDuration * 60);
     setTotalDuration(settings.restDuration * 60);
     sessionStartTimeRef.current = new Date();
+    startTimerNotification(settings.restDuration * 60, 'rest');
   };
 
   // Skip rest → start work immediately (explicit user action)
   const skipRest = () => {
+    stopTimerNotification();
     setTimerState('running');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
     sessionStartTimeRef.current = new Date();
+    startTimerNotification(settings.workDuration * 60, 'focus');
   };
 
   // End rest → start work immediately (explicit user action)
   const endRestSession = () => {
+    stopTimerNotification();
     setTimerState('running');
     setTimerMode('work');
     setTimeLeft(settings.workDuration * 60);
     setTotalDuration(settings.workDuration * 60);
     sessionStartTimeRef.current = new Date();
+    startTimerNotification(settings.workDuration * 60, 'focus');
   };
 
   // 6. History Actions
