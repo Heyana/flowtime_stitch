@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Flame, TrendingUp, Coffee, Clock, Plus, Trash2, Calendar, Check, X } from 'lucide-react';
 import { Session, SessionType } from '../types';
 import { t } from '../i18n';
+import { ConfirmModal } from './ConfirmModal';
 
 interface HistoryTabProps {
   sessions: Session[];
@@ -18,6 +19,7 @@ interface HistoryTabProps {
 export default function HistoryTab({ sessions, streak, onAddSession, onClearHistory, onDeleteSession }: HistoryTabProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [newType, setNewType] = useState<SessionType>('work');
   const [newTitle, setNewTitle] = useState('');
   const [newDuration, setNewDuration] = useState(25);
@@ -36,9 +38,7 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
-  const efficiency = totalFocusMinutes > 0
-    ? Math.round((totalFocusMinutes / (totalFocusMinutes + totalRestMinutes)) * 100)
-    : 0;
+  const completedSessions = todaySessions.filter(s => s.type === 'work').length;
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +63,7 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
             className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all cursor-pointer"
           ><Plus className="w-4 h-4" />{t('history.logSession')}</button>
           {sessions.length > 0 && (
-            <button onClick={() => { if (confirm('Are you sure you want to clear your session history?')) onClearHistory(); }}
+            <button onClick={() => setShowClearConfirm(true)}
               className="px-4 py-2 bg-error/10 text-error hover:bg-error/20 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all cursor-pointer"
             ><Trash2 className="w-4 h-4" />{t('history.clearAll')}</button>
           )}
@@ -78,7 +78,7 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
         </div>
         <div className="bg-surface-container-lowest rounded-xl p-5 shadow-soft flex flex-col justify-between relative overflow-hidden min-h-[104px]">
           <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-secondary" /><span className="text-xs text-on-surface-variant font-medium tracking-wider uppercase">{t('history.efficiency')}</span></div>
-          <p className="font-display text-2xl font-bold text-on-surface">{efficiency > 0 ? `${efficiency}%` : '--'}</p>
+          <p className="font-display text-2xl font-bold text-on-surface">{completedSessions}</p>
         </div>
         <div className="bg-surface-container-lowest rounded-xl p-5 shadow-soft flex flex-col justify-between relative overflow-hidden min-h-[104px]">
           <div className="flex items-center gap-2"><Coffee className="w-4 h-4 text-tertiary" /><span className="text-xs text-on-surface-variant font-medium tracking-wider uppercase">{t('history.totalRest')}</span></div>
@@ -182,6 +182,19 @@ export default function HistoryTab({ sessions, streak, onAddSession, onClearHist
             </form>
           </div>
         </div>
+      )}
+
+      {/* Clear History Confirmation */}
+      {showClearConfirm && (
+        <ConfirmModal
+          title={t('history.clearAll')}
+          message="Are you sure you want to clear all session history? This action cannot be undone."
+          confirmLabel={t('history.clearAll')}
+          cancelLabel="Cancel"
+          variant="danger"
+          onConfirm={() => { onClearHistory(); setShowClearConfirm(false); }}
+          onCancel={() => setShowClearConfirm(false)}
+        />
       )}
     </div>
   );

@@ -45,7 +45,8 @@ export default function App() {
   });
 
   // Tab Navigation State: 'timer' | 'history' | 'breaks' | 'settings'
-  const [activeTab, setActiveTab] = useState<'timer' | 'history' | 'breaks' | 'settings' | 'debug'>('timer');
+  const [activeTab, setActiveTab] = useState<'timer' | 'history' | 'breaks' | 'settings'>('timer');
+  const [showDebug, setShowDebug] = useState(false);
 
   // Mindfulness Guided Breathing Modal Overlay
   const [showBreathingModal, setShowBreathingModal] = useState(false);
@@ -458,11 +459,16 @@ export default function App() {
             userProfile={userProfile}
             onSaveSettings={setSettings}
             onSaveProfile={setUserProfile}
+            onOpenDebug={() => setShowDebug(true)}
           />
         )}
 
         {activeTab === 'debug' && (
           <DebugTab />
+        )}
+
+        {showDebug && (
+          <DebugTab onBack={() => setShowDebug(false)} />
         )}
       </main>
 
@@ -471,7 +477,7 @@ export default function App() {
         {/* Tab 1: Timer */}
         <button 
           onClick={() => setActiveTab('timer')}
-          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
+          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-emphasis cursor-pointer ${
             activeTab === 'timer' 
               ? timerMode === 'work'
                 ? 'bg-primary text-on-primary scale-110 shadow-soft' 
@@ -486,7 +492,7 @@ export default function App() {
         {/* Tab 2: Sessions / History */}
         <button 
           onClick={() => setActiveTab('history')}
-          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
+          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-emphasis cursor-pointer ${
             activeTab === 'history' 
               ? 'bg-primary text-on-primary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
@@ -499,7 +505,7 @@ export default function App() {
         {/* Tab 3: Mindful Breaks Catalog */}
         <button 
           onClick={() => setActiveTab('breaks')}
-          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
+          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-emphasis cursor-pointer ${
             activeTab === 'breaks' 
               ? 'bg-secondary text-on-secondary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
@@ -512,7 +518,7 @@ export default function App() {
         {/* Tab 4: Settings / Profile */}
         <button 
           onClick={() => setActiveTab('settings')}
-          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
+          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-emphasis cursor-pointer ${
             activeTab === 'settings' 
               ? 'bg-primary text-on-primary scale-110 shadow-soft' 
               : 'text-on-surface-variant hover:bg-surface-container-low'
@@ -520,19 +526,6 @@ export default function App() {
           title={t('tooltip.settings')}
         >
           <UserIcon className={`w-5.5 h-5.5 ${activeTab === 'settings' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
-        </button>
-
-        {/* Tab 5: Debug (testing only) */}
-        <button 
-          onClick={() => setActiveTab('debug')}
-          className={`flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer ${
-            activeTab === 'debug' 
-              ? 'bg-tertiary text-on-tertiary scale-110 shadow-soft' 
-              : 'text-on-surface-variant/30 hover:bg-surface-container-low'
-          }`}
-          title={t('tooltip.debugPanel')}
-        >
-          <Bug className={`w-5.5 h-5.5 ${activeTab === 'debug' ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
         </button>
       </nav>
 

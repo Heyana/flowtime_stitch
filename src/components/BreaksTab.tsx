@@ -21,6 +21,7 @@ export default function BreaksTab({ onStartBreathe }: BreaksTabProps) {
   const [stretchActive, setStretchActive] = useState(false);
   const [stretchIndex, setStretchIndex] = useState(0);
   const [stretchTimeLeft, setStretchTimeLeft] = useState(30);
+  const [stretchComplete, setStretchComplete] = useState(false);
 
   const stretches = [
     { name: t('stretch.neckTilt'), desc: t('stretch.neckTiltDesc') },
@@ -39,9 +40,10 @@ export default function BreaksTab({ onStartBreathe }: BreaksTabProps) {
         setStretchTimeLeft(30);
       } else {
         setStretchActive(false);
-        alert(t('breaks.stretchComplete'));
+        setStretchComplete(true);
         setStretchIndex(0);
         setStretchTimeLeft(30);
+        setTimeout(() => setStretchComplete(false), 4000);
       }
     }
     return () => { if (interval) clearInterval(interval); };
@@ -119,6 +121,12 @@ export default function BreaksTab({ onStartBreathe }: BreaksTabProps) {
 
         {/* Stretch Timer */}
         <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 flex flex-col gap-4 border border-transparent hover:border-surface-container-high transition-all md:col-span-2">
+          {stretchComplete && (
+            <div className="flex items-center gap-2 bg-secondary/10 text-secondary rounded-xl px-4 py-3 text-sm font-semibold">
+              <Check className="w-4 h-4 flex-shrink-0" />
+              {t('breaks.stretchComplete')}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Accessibility className="w-4 h-4 text-primary" />
             <h3 className="text-xs font-semibold text-on-surface-variant tracking-wider uppercase">{t('breaks.deskWellness')}</h3>

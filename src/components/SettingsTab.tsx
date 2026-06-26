@@ -3,19 +3,21 @@
  */
 
 import { useState, useEffect } from 'react';
-import { User, Settings, Shield, Bell, Check, Clock, Languages } from 'lucide-react';
+import { User, Settings, Shield, Bell, Check, Clock, Languages, Bug, Sun, Moon, Monitor } from 'lucide-react';
 import { RhythmSettings, UserProfile } from '../types';
 import { AVATARS } from '../data';
 import { getLocale, setLocale, t, onLocaleChange, Locale } from '../i18n';
+import { getTheme, setTheme, onThemeChange, Theme } from '../theme';
 
 interface SettingsTabProps {
   settings: RhythmSettings;
   userProfile: UserProfile;
   onSaveSettings: (settings: RhythmSettings) => void;
   onSaveProfile: (profile: UserProfile) => void;
+  onOpenDebug: () => void;
 }
 
-export default function SettingsTab({ settings, userProfile, onSaveSettings, onSaveProfile }: SettingsTabProps) {
+export default function SettingsTab({ settings, userProfile, onSaveSettings, onSaveProfile, onOpenDebug }: SettingsTabProps) {
   const [workDuration, setWorkDuration] = useState(settings.workDuration);
   const [restDuration, setRestDuration] = useState(settings.restDuration);
   const [autoStartBreaks, setAutoStartBreaks] = useState(settings.autoStartBreaks);
@@ -27,8 +29,10 @@ export default function SettingsTab({ settings, userProfile, onSaveSettings, onS
   const [selectedAvatar, setSelectedAvatar] = useState(userProfile.avatarUrl);
   const [toastMessage, setToastMessage] = useState('');
   const [locale, setLocalLocale] = useState<Locale>(getLocale());
+  const [theme, setLocalTheme] = useState<Theme>(getTheme());
 
   useEffect(() => { return onLocaleChange(() => setLocalLocale(getLocale())); }, []);
+  useEffect(() => { return onThemeChange(() => setLocalTheme(getTheme())); }, []);
 
   const handleSaveAll = () => {
     onSaveSettings({ workDuration, restDuration, autoStartBreaks, autoStartWork, lunchBreakEnabled, lunchStartTime, lunchEndTime });
@@ -177,6 +181,51 @@ export default function SettingsTab({ settings, userProfile, onSaveSettings, onS
             >{t('settings.langEn')}</button>
           </div>
         </div>
+      </section>
+
+      {/* Theme */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold text-on-surface-variant tracking-wider uppercase pl-2">Theme</h2>
+        <div className="bg-surface-container-lowest shadow-soft rounded-xl p-6 md:p-8">
+          <div className="grid grid-cols-3 gap-3">
+            <button type="button" onClick={() => setTheme('system')}
+              className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-full text-xs font-semibold cursor-pointer border transition-all ${
+                theme === 'system' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-on-surface-variant border-surface-container-high hover:border-primary/30'
+              }`}
+            >
+              <Monitor className="w-4 h-4" />System
+            </button>
+            <button type="button" onClick={() => setTheme('light')}
+              className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-full text-xs font-semibold cursor-pointer border transition-all ${
+                theme === 'light' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-on-surface-variant border-surface-container-high hover:border-primary/30'
+              }`}
+            >
+              <Sun className="w-4 h-4" />Light
+            </button>
+            <button type="button" onClick={() => setTheme('dark')}
+              className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-full text-xs font-semibold cursor-pointer border transition-all ${
+                theme === 'dark' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-on-surface-variant border-surface-container-high hover:border-primary/30'
+              }`}
+            >
+              <Moon className="w-4 h-4" />Dark
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Debug Panel — developer tooling, kept out of main navigation */}
+      <section className="pt-4 border-t border-surface-container">
+        <button onClick={onOpenDebug}
+          className="w-full flex items-center gap-3 bg-surface-container-lowest hover:bg-surface-container-low shadow-soft rounded-xl p-5 text-left transition-all cursor-pointer border border-transparent hover:border-surface-container-high"
+        >
+          <div className="p-2 rounded-full bg-tertiary/10 text-tertiary">
+            <Bug className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-sm text-on-surface">{t('debug.title')}</h4>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t('debug.desc')}</p>
+          </div>
+        </button>
       </section>
 
       <div className="mt-4 flex justify-center">

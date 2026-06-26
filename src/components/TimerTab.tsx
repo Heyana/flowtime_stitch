@@ -71,11 +71,12 @@ export default function TimerTab({
       {/* Timer Ring */}
       <div className="relative flex items-center justify-center w-76 h-76 md:w-80 md:h-80 select-none">
         <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 320 320">
-          <circle cx="160" cy="160" fill="none" r={radius} stroke="#e8e8e8" strokeWidth="12" />
+          <circle cx="160" cy="160" fill="none" r={radius} stroke="var(--color-surface-container-high)" strokeWidth="12" />
           <circle cx="160" cy="160" fill="none" r={radius}
-            stroke={isWork ? '#b3272e' : '#006d3e'} strokeLinecap="round" strokeWidth="16"
+            strokeLinecap="round" strokeWidth="16"
             strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-1000 ease-linear"
+            className="transition-[stroke-dashoffset] duration-1000 ease-linear"
+            style={{ stroke: isWork ? 'var(--color-primary)' : 'var(--color-secondary)' }}
           />
         </svg>
         <div className="flex flex-col items-center z-10 text-center px-6">

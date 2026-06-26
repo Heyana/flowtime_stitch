@@ -5,7 +5,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Bug, Volume2, Bell, Timer } from 'lucide-react';
+import { ArrowLeft, Bug, Volume2, Bell, Timer } from 'lucide-react';
 import { playWorkChime, playRestChime } from '../capacitor-native';
 import { t } from '../i18n';
 
@@ -40,7 +40,7 @@ async function showTestNotification(): Promise<void> {
   }
 }
 
-export default function DebugTab() {
+export default function DebugTab({ onBack }: { onBack?: () => void }) {
   const [testResult, setTestResult] = useState('');
   const [countdownActive, setCountdownActive] = useState(false);
   const [countdownLeft, setCountdownLeft] = useState(10);
@@ -137,6 +137,11 @@ export default function DebugTab() {
   return (
     <div className="w-full max-w-md mx-auto flex flex-col gap-6 py-4 animate-fade-in">
       <div className="flex items-center gap-2 px-1">
+        {onBack && (
+          <button onClick={onBack} className="p-1.5 text-on-surface-variant/60 hover:text-on-surface rounded-full hover:bg-surface-container transition-colors cursor-pointer mr-1" title="Back to Settings">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        )}
         <Bug className="w-5 h-5 text-tertiary" />
         <h2 className="font-display text-2xl font-bold text-on-surface">{t('debug.title')}</h2>
       </div>
